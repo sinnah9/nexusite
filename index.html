@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS — Agencia de Sitios Web</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #080808;
+    --off-white: #F0EDE8;
+    --muted: #5A5550;
+    --orange: #FF4500;
+    --orange-warm: #FF6B35;
+    --surface: #111010;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--off-white);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── LOADER ── */
+  #loader {
+    position: fixed; inset: 0;
+    background: var(--black);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-end;
+    padding: 3rem;
+    pointer-events: none;
+  }
+  #loader-inner {
+    display: flex;
+    align-items: baseline;
+    gap: 2rem;
+    width: 100%;
+    justify-content: space-between;
+  }
+  #loader-brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    letter-spacing: -0.02em;
+    color: var(--off-white);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease 0.2s forwards;
+  }
+  #loader-pct {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 400;
+    color: var(--orange);
+    min-width: 120px;
+    text-align: right;
+  }
+  #loader-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px;
+    background: var(--orange);
+    width: 0%;
+    transition: width 0.05s linear;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.75rem 3rem;
+    mix-blend-mode: difference;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    color: var(--off-white);
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--off-white);
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+  .nav-links a:hover { opacity: 1; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 3rem;
+    padding-bottom: 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 40%, rgba(255,69,0,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 70%, rgba(255,69,0,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 1.2s forwards;
+  }
+  .hero-headline {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3.5rem, 10vw, 10rem);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    color: var(--off-white);
+    opacity: 0;
+    animation: fadeUp 0.9s ease 1.4s forwards;
+  }
+  .hero-headline em {
+    font-style: normal;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--orange);
+  }
+  .hero-sub-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-top: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 1.6s forwards;
+  }
+  .hero-desc {
+    max-width: 380px;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2.5rem;
+    border: 1px solid var(--orange);
+    color: var(--orange);
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+  }
+  .hero-cta:hover { background: var(--orange); color: var(--black); }
+  .hero-scroll {
+    position: absolute;
+    bottom: 2rem; right: 3rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    writing-mode: vertical-rl;
+    opacity: 0;
+    animation: fadeUp 1s ease 2s forwards;
+  }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    border-top: 1px solid #1C1C1C;
+    border-bottom: 1px solid #1C1C1C;
+    padding: 1.1rem 0;
+    overflow: hidden;
+    background: #0C0C0C;
+  }
+  .marquee-track {
+    display: flex;
+    white-space: nowrap;
+    animation: scroll 22s linear infinite;
+    width: max-content;
+  }
+  .marquee-track span {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 3rem;
+  }
+  .marquee-track span.accent { color: var(--orange); }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── SECTION LAYOUT ── */
+  section { padding: 7rem 3rem; }
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background: var(--orange);
+  }
+
+  /* ── ABOUT ── */
+  #about { border-top: 1px solid #1C1C1C; }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+  .about-headline {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .about-headline span { color: var(--orange); }
+  .about-text {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+  .about-text p + p { margin-top: 1.5rem; }
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--off-white);
+    line-height: 1;
+  }
+  .stat-num span { color: var(--orange); font-size: 2rem; }
+  .stat-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.4rem;
+  }
+
+  /* ── SERVICES ── */
+  #services { border-top: 1px solid #1C1C1C; }
+  .services-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 4rem;
+  }
+  .services-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .services-list { list-style: none; }
+  .service-item {
+    display: grid;
+    grid-template-columns: 3rem 1fr auto;
+    align-items: center;
+    padding: 2rem 0;
+    border-bottom: 1px solid #1C1C1C;
+    cursor: default;
+    transition: background 0.3s;
+  }
+  .service-item:hover { background: #0F0F0F; margin: 0 -3rem; padding: 2rem 3rem; }
+  .service-num {
+    font-size: 0.7rem;
+    color: var(--orange);
+    font-family: 'Syne', sans-serif;
+  }
+  .service-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.3rem, 2.5vw, 2rem);
+    font-weight: 700;
+  }
+  .service-arrow {
+    font-size: 1.2rem;
+    color: var(--orange);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .service-item:hover .service-arrow { opacity: 1; transform: translateX(6px); }
+
+  /* ── WORK ── */
+  #work { border-top: 1px solid #1C1C1C; }
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+  .work-card {
+    background: var(--surface);
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+  .work-card:nth-child(1) { grid-column: 1 / 8; }
+  .work-card:nth-child(2) { grid-column: 8 / 13; }
+  .work-card:nth-child(3) { grid-column: 1 / 5; }
+  .work-card:nth-child(4) { grid-column: 5 / 13; }
+  .work-card-inner {
+    aspect-ratio: 4/3;
+    background: #161616;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .work-card:nth-child(2) .work-card-inner { aspect-ratio: 3/4; }
+  .work-card:nth-child(4) .work-card-inner { aspect-ratio: 16/7; }
+  .work-placeholder {
+    position: absolute; inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .work-card:hover .work-placeholder { transform: scale(1.05); }
+  .work-gradient {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,69,0,0.08) 0%, transparent 60%);
+  }
+  .work-pattern {
+    width: 100%; height: 100%;
+    opacity: 0.15;
+  }
+  .work-overlay {
+    position: absolute; inset: 0;
+    background: rgba(8,8,8,0.7);
+    opacity: 0;
+    transition: opacity 0.4s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .work-card:hover .work-overlay { opacity: 1; }
+  .work-view {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--orange);
+    border: 1px solid var(--orange);
+    padding: 0.75rem 1.5rem;
+    transform: translateY(10px);
+    transition: transform 0.4s;
+  }
+  .work-card:hover .work-view { transform: translateY(0); }
+  .work-meta {
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .work-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .work-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── CONTACT ── */
+  #contact { border-top: 1px solid #1C1C1C; }
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: start;
+  }
+  .contact-headline {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .contact-headline em {
+    font-style: normal;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--orange);
+  }
+  .contact-sub {
+    margin-top: 1.5rem;
+    color: var(--muted);
+    line-height: 1.7;
+    font-size: 0.95rem;
+  }
+  .form-group { margin-bottom: 1.75rem; }
+  .form-group label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #2A2A2A;
+    padding: 0.75rem 0;
+    color: var(--off-white);
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus { border-color: var(--orange); }
+  .form-group textarea { height: 100px; resize: none; }
+  .submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 3rem;
+    background: var(--orange);
+    color: var(--black);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .submit-btn:hover { background: var(--orange-warm); transform: translateY(-2px); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid #1C1C1C;
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--off-white);
+  }
+  .footer-copy {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .footer-links a {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--orange); }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── CURSOR CANDLE GLOW ── */
+  #cursor {
+    position: fixed;
+    width: 4px; height: 4px;
+    background: rgba(255, 90, 30, 0.45);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%, -50%);
+    transition: left 0.06s ease, top 0.06s ease, width 0.4s, height 0.4s;
+    box-shadow:
+      0 0 4px 2px rgba(255, 80, 20, 0.1),
+      0 0 12px 6px rgba(255, 69, 0, 0.05),
+      0 0 30px 14px rgba(255, 50, 0, 0.03);
+  }
+  #cursor-ring { display: none; }
+
+  @media (max-width: 768px) {
+    nav { padding: 1.5rem; }
+    section { padding: 5rem 1.5rem; }
+    .about-grid, .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+    .work-card:nth-child(1),
+    .work-card:nth-child(2),
+    .work-card:nth-child(3),
+    .work-card:nth-child(4) { grid-column: 1 / -1; }
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    #cursor, #cursor-ring { display: none; }
+    .nav-links { gap: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div id="loader-inner">
+    <div id="loader-brand">NEXUS</div>
+    <div id="loader-pct">0%</div>
+  </div>
+  <div id="loader-bar"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Nexus</a>
+  <ul class="nav-links">
+    <li><a href="#about">Nosotros</a></li>
+    <li><a href="#services">Servicios</a></li>
+    <li><a href="#work">Proyectos</a></li>
+    <li><a href="#contact">Contacto</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <p class="hero-tag">Agencia de sitios web — Ciudad de México</p>
+  <h1 class="hero-headline">
+    Diseñamos<br>
+    webs que<br>
+    <em>convierten.</em>
+  </h1>
+  <div class="hero-sub-row">
+    <p class="hero-desc">
+      Creamos experiencias digitales que conectan marcas con sus audiencias. Diseño estratégico, código limpio, resultados reales.
+    </p>
+    <a href="#work" class="hero-cta">Ver proyectos →</a>
+  </div>
+  <span class="hero-scroll">Desplazar</span>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>Diseño Web</span><span class="accent">✦</span>
+    <span>Desarrollo</span><span class="accent">✦</span>
+    <span>UX / UI</span><span class="accent">✦</span>
+    <span>E-Commerce</span><span class="accent">✦</span>
+    <span>Branding Digital</span><span class="accent">✦</span>
+    <span>SEO</span><span class="accent">✦</span>
+    <span>Estrategia</span><span class="accent">✦</span>
+    <span>Animaciones</span><span class="accent">✦</span>
+    <span>Diseño Web</span><span class="accent">✦</span>
+    <span>Desarrollo</span><span class="accent">✦</span>
+    <span>UX / UI</span><span class="accent">✦</span>
+    <span>E-Commerce</span><span class="accent">✦</span>
+    <span>Branding Digital</span><span class="accent">✦</span>
+    <span>SEO</span><span class="accent">✦</span>
+    <span>Estrategia</span><span class="accent">✦</span>
+    <span>Animaciones</span><span class="accent">✦</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">Sobre nosotros</div>
+  <div class="about-grid">
+    <div class="reveal">
+      <h2 class="about-headline">
+        Creamos sitios que<br>
+        <span>hablan por ti.</span>
+      </h2>
+      <div class="stats">
+        <div>
+          <div class="stat-num">80<span>+</span></div>
+          <div class="stat-label">Proyectos entregados</div>
+        </div>
+        <div>
+          <div class="stat-num">5<span>+</span></div>
+          <div class="stat-label">Años de experiencia</div>
+        </div>
+        <div>
+          <div class="stat-num">95<span>%</span></div>
+          <div class="stat-label">Clientes satisfechos</div>
+        </div>
+        <div>
+          <div class="stat-num">12</div>
+          <div class="stat-label">Países atendidos</div>
+        </div>
+      </div>
+    </div>
+    <div class="about-text reveal">
+      <p>
+        Somos un equipo de diseñadores y desarrolladores apasionados por crear experiencias digitales que van más allá de lo ordinario. Cada proyecto es una oportunidad de contar una historia diferente.
+      </p>
+      <p>
+        Trabajamos con marcas que entienden el valor de la presencia digital — desde startups en crecimiento hasta empresas establecidas que quieren reinventarse en línea.
+      </p>
+      <p>
+        Nuestro proceso combina investigación profunda, diseño estratégico y tecnología de punta para entregar sitios que no solo se ven bien, sino que generan resultados.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-header reveal">
+    <div>
+      <div class="section-label">Servicios</div>
+      <h2 class="services-title">Lo que<br>hacemos</h2>
+    </div>
+  </div>
+  <ul class="services-list reveal">
+    <li class="service-item">
+      <span class="service-num">01</span>
+      <span class="service-name">Diseño & Branding</span>
+      <span class="service-arrow">→</span>
+    </li>
+    <li class="service-item">
+      <span class="service-num">02</span>
+      <span class="service-name">Desarrollo Web</span>
+      <span class="service-arrow">→</span>
+    </li>
+    <li class="service-item">
+      <span class="service-num">03</span>
+      <span class="service-name">E-Commerce</span>
+      <span class="service-arrow">→</span>
+    </li>
+    <li class="service-item">
+      <span class="service-num">04</span>
+      <span class="service-name">Estrategia Digital</span>
+      <span class="service-arrow">→</span>
+    </li>
+    <li class="service-item">
+      <span class="service-num">05</span>
+      <span class="service-name">SEO & Rendimiento</span>
+      <span class="service-arrow">→</span>
+    </li>
+  </ul>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="section-label reveal">Proyectos</div>
+  <div class="work-grid reveal">
+
+    <div class="work-card">
+      <div class="work-card-inner">
+        <div class="work-placeholder">
+          <div class="work-gradient"></div>
+          <svg class="work-pattern" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+            <defs><pattern id="g1" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="#FF4500"/></pattern></defs>
+            <rect width="100%" height="100%" fill="url(#g1)"/>
+            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#FF4500" font-size="80" font-family="Syne,sans-serif" font-weight="800" opacity="0.2">01</text>
+          </svg>
+        </div>
+        <div class="work-overlay"><div class="work-view">Ver proyecto</div></div>
+      </div>
+      <div class="work-meta">
+        <span class="work-title">Restaurante Lunar</span>
+        <span class="work-tag">Web + Branding</span>
+      </div>
+    </div>
+
+    <div class="work-card">
+      <div class="work-card-inner">
+        <div class="work-placeholder">
+          <div class="work-gradient"></div>
+          <svg class="work-pattern" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+            <defs><pattern id="g2" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="30" y2="30" stroke="#FF4500" stroke-width="0.5"/></pattern></defs>
+            <rect width="100%" height="100%" fill="url(#g2)"/>
+            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#FF4500" font-size="100" font-family="Syne,sans-serif" font-weight="800" opacity="0.15">02</text>
+          </svg>
+        </div>
+        <div class="work-overlay"><div class="work-view">Ver proyecto</div></div>
+      </div>
+      <div class="work-meta">
+        <span class="work-title">Studio Arca</span>
+        <span class="work-tag">Portafolio</span>
+      </div>
+    </div>
+
+    <div class="work-card">
+      <div class="work-card-inner">
+        <div class="work-placeholder">
+          <div class="work-gradient"></div>
+          <svg class="work-pattern" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <defs><pattern id="g3" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><rect x="9" y="9" width="2" height="2" fill="#FF4500"/></pattern></defs>
+            <rect width="100%" height="100%" fill="url(#g3)"/>
+            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#FF4500" font-size="70" font-family="Syne,sans-serif" font-weight="800" opacity="0.2">03</text>
+          </svg>
+        </div>
+        <div class="work-overlay"><div class="work-view">Ver proyecto</div></div>
+      </div>
+      <div class="work-meta">
+        <span class="work-title">Moda Koto</span>
+        <span class="work-tag">E-Commerce</span>
+      </div>
+    </div>
+
+    <div class="work-card">
+      <div class="work-card-inner">
+        <div class="work-placeholder">
+          <div class="work-gradient"></div>
+          <svg class="work-pattern" viewBox="0 0 900 350" xmlns="http://www.w3.org/2000/svg">
+            <defs><pattern id="g4" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="0.8" fill="#FF4500" opacity="0.6"/></pattern></defs>
+            <rect width="100%" height="100%" fill="url(#g4)"/>
+            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#FF4500" font-size="120" font-family="Syne,sans-serif" font-weight="800" opacity="0.12">04</text>
+          </svg>
+        </div>
+        <div class="work-overlay"><div class="work-view">Ver proyecto</div></div>
+      </div>
+      <div class="work-meta">
+        <span class="work-title">Clínica Verdant</span>
+        <span class="work-tag">Web Corporativa</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="reveal">
+      <div class="section-label">Contacto</div>
+      <h2 class="contact-headline">
+        Hablemos<br>de tu<br>
+        <em>proyecto.</em>
+      </h2>
+      <p class="contact-sub">
+        Cuéntanos qué tienes en mente. Nos encanta conocer nuevas ideas y explorar cómo podemos ayudarte a hacerlas realidad.
+      </p>
+    </div>
+    <form class="reveal" id="contact-form" onsubmit="sendMail(event)">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" id="f-name" placeholder="Tu nombre completo" required>
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="f-email" placeholder="correo@tuempresa.com" required>
+      </div>
+      <div class="form-group">
+        <label>¿Qué necesitas?</label>
+        <textarea id="f-msg" placeholder="Cuéntanos sobre tu proyecto..." required></textarea>
+      </div>
+      <button class="submit-btn" type="submit" id="submit-btn">Enviar mensaje →</button>
+      <p id="form-status" style="margin-top:1rem;font-size:0.82rem;color:var(--orange);letter-spacing:0.05em;display:none;"></p>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Nexus</div>
+  <p class="footer-copy">© 2026 Nexus. Todos los derechos reservados.</p>
+  <ul class="footer-links">
+    <li><a href="#">Instagram</a></li>
+    <li><a href="#">Behance</a></li>
+    <li><a href="#">LinkedIn</a></li>
+  </ul>
+</footer>
+
+<script>
+  // LOADER
+  const loader = document.getElementById('loader');
+  const pct = document.getElementById('loader-pct');
+  const bar = document.getElementById('loader-bar');
+  let count = 0;
+  const interval = setInterval(() => {
+    count += Math.floor(Math.random() * 4) + 1;
+    if (count >= 100) { count = 100; clearInterval(interval); }
+    pct.textContent = count + '%';
+    bar.style.width = count + '%';
+    if (count === 100) {
+      setTimeout(() => {
+        loader.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        loader.style.opacity = '0';
+        loader.style.transform = 'translateY(-100%)';
+        setTimeout(() => { loader.style.display = 'none'; }, 800);
+      }, 300);
+    }
+  }, 28);
+
+  // CURSOR CANDLE GLOW
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, .work-card, .service-item').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '6px';
+      cursor.style.height = '6px';
+      cursor.style.boxShadow = '0 0 6px 3px rgba(255,80,20,0.15), 0 0 18px 8px rgba(255,69,0,0.07), 0 0 40px 18px rgba(255,50,0,0.04)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '4px';
+      cursor.style.height = '4px';
+      cursor.style.boxShadow = '0 0 4px 2px rgba(255,80,20,0.1), 0 0 12px 6px rgba(255,69,0,0.05), 0 0 30px 14px rgba(255,50,0,0.03)';
+    });
+  });
+
+  // CONTACT FORM → EMAIL
+  function sendMail(e) {
+    e.preventDefault();
+    const name = document.getElementById('f-name').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const msg = document.getElementById('f-msg').value.trim();
+    const status = document.getElementById('form-status');
+    const btn = document.getElementById('submit-btn');
+    const subject = encodeURIComponent('Nuevo proyecto de ' + name);
+    const body = encodeURIComponent('Nombre: ' + name + '\nCorreo: ' + email + '\n\nMensaje:\n' + msg);
+    btn.textContent = 'Abriendo correo...';
+    btn.style.opacity = '0.7';
+    window.location.href = 'mailto:gilvillanuevajorge85@gmail.com?subject=' + subject + '&body=' + body;
+    setTimeout(() => {
+      btn.textContent = 'Enviar mensaje →';
+      btn.style.opacity = '1';
+      status.style.display = 'block';
+      status.textContent = '✓ Se abrió tu cliente de correo. ¡Gracias por escribirnos!';
+      document.getElementById('contact-form').reset();
+    }, 1800);
+  }
+
+  // SCROLL REVEAL
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
